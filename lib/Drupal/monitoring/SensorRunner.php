@@ -24,7 +24,7 @@ class SensorRunner implements \IteratorAggregate {
   /**
    * List of sensors info keyed by sensor name that are meant to run.
    *
-   * @var array
+   * @var \Drupal\monitoring\Sensor\SensorInfo[]
    */
   protected $sensors = array();
 
@@ -57,7 +57,7 @@ class SensorRunner implements \IteratorAggregate {
   protected $loggingMode = FALSE;
 
   /**
-   * SensorRunner
+   * Constructor.
    *
    * @param array $sensors
    *   Associative array of sensor names => sensor info.
@@ -74,6 +74,7 @@ class SensorRunner implements \IteratorAggregate {
    * Forces to run sensors even there is cached data available.
    *
    * @param bool $force
+   *   Whether or not to force a sensor to run. Defaults to TRUE.
    */
   public function forceRun($force = TRUE) {
     $this->forceRun = $force;
@@ -104,8 +105,8 @@ class SensorRunner implements \IteratorAggregate {
    */
   public function loadCache() {
     $cids = array();
+
     // Only load sensor caches if they define caching.
-    /** @var SensorInfo $sensor_info */
     foreach ($this->sensors as $name => $sensor_info) {
       if ($sensor_info->getCachingTime()) {
         $cids[] = $this->getSensorCid($name);
@@ -136,7 +137,7 @@ class SensorRunner implements \IteratorAggregate {
    */
   public function runSensors() {
     $results = array();
-    /** @var SensorInfo $info */
+
     foreach ($this->sensors as $name => $info) {
       if ($result = $this->runSensor($info)) {
         $results[$name] = $result;
@@ -158,6 +159,7 @@ class SensorRunner implements \IteratorAggregate {
    */
   protected function runSensor(SensorInfo $sensor_info) {
     $sensor = $this->getSensorObject($sensor_info);
+
     // Check if sensor is enabled.
     if (!$sensor->isEnabled()) {
       return NULL;
@@ -187,11 +189,10 @@ class SensorRunner implements \IteratorAggregate {
   /**
    * Helper method to save results into result log.
    *
-   * @param array $results
+   * @param \Drupal\monitoring\Result\SensorResultInterface[] $results
    *   Results to be saved.
    */
   protected function saveResults(array $results) {
-    /** @var \Drupal\monitoring\Result\SensorResultInterface $result */
     foreach ($results as $result) {
       // Skip if the result is cached.
       if ($result->isCached()) {
@@ -223,13 +224,12 @@ class SensorRunner implements \IteratorAggregate {
   /**
    * Helper method to cache results.
    *
-   * @param array $results
+   * @param \Drupal\monitoring\Result\SensorResultInterface[] $results
    *   Results to be cached.
    */
   protected function cacheResults(array $results) {
     // @todo: Cache in a single array, with per item expiration?
     foreach ($results as $result) {
-      /** @var \Drupal\monitoring\Result\SensorResultInterface $result */
       $definition = $result->getSensorInfo();
       if ($definition->getCachingTime() && !$result->isCached()) {
         $data = $result->getEntityValues();
@@ -279,6 +279,7 @@ class SensorRunner implements \IteratorAggregate {
    * Gets sensor cache id.
    *
    * @param string $sensor_name
+   *   The name of the sensor.
    *
    * @return string
    *   Cache id.
