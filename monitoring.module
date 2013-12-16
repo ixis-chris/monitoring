@@ -16,7 +16,7 @@ use Drupal\monitoring\SensorRunner;
  *
  * @param string $sensor_name
  *   Sensor id.
- * @param boolean $reset
+ * @param bool $reset
  *   Static cache reset flag.
  *
  * @return array
@@ -123,7 +123,8 @@ function monitoring_sensor_info_by_categories($enabled = TRUE) {
  * @param bool $reset
  *   Flag to reset internal static cache.
  *
- * @return SensorInfo
+ * @return SensorInfo[]
+ *   An array of populated SensorInfo objects.
  */
 function monitoring_sensor_info_instance($sensor_name = NULL, $reset = FALSE) {
   $instances = &drupal_static(__FUNCTION__, array(), $reset);
@@ -147,11 +148,16 @@ function monitoring_sensor_info_instance($sensor_name = NULL, $reset = FALSE) {
  * Note that in case there is a cached result for given sensor name, the sensor
  * will not run and the cached result will be returned.
  *
- * @param $sensor_name
- * @param $force_run
- * @param $verbose
+ * @param string $sensor_name
+ *   The name of the sensor that is to be run.
+ * @param bool $force_run
+ *   Set to TRUE to force the run. Defaults to FALSE.
+ * @param array|null $verbose
+ *   If an empty array is provided it will be filled with verbose output keyed
+ *   by sensor names.
  *
  * @return SensorResultInterface
+ *   A single result object.
  */
 function monitoring_sensor_run($sensor_name, $force_run = FALSE, &$verbose = NULL) {
   $results = monitoring_sensor_run_multiple(array($sensor_name), $force_run, $verbose);
@@ -206,7 +212,7 @@ function monitoring_sensor_run_multiple($sensor_names = array(), $force_run = FA
 }
 
 /**
- * Implements hook_entity_info()
+ * Implements hook_entity_info().
  */
 function monitoring_entity_info() {
   $info['monitoring_sensor_result'] = array(
@@ -332,7 +338,7 @@ function monitoring_menu() {
  *
  * @param string $action
  *   View/page action.
- * @param $sensor_name
+ * @param string $sensor_name
  *   Sensor name.
  *
  * @return string
@@ -343,13 +349,12 @@ function monitoring_sensor_action_title($action, $sensor_name) {
   switch ($action) {
     case 'settings':
       return t('@sensor settings', array('@sensor' => $sensor_info['label']));
-      break;
+
     case 'details':
       return $sensor_info['label'];
-      break;
+
     case 'log':
       return $sensor_info['label'];
-      break;
   }
 
   return '';
@@ -395,7 +400,7 @@ function monitoring_sensor_settings_merge($sensor_name, array $default_settings)
 /**
  * Saves sensor settings.
  *
- * @param $sensor_name
+ * @param string $sensor_name
  *   Sensor name.
  * @param array $values
  *   Settings to be saved.
@@ -409,7 +414,7 @@ function monitoring_sensor_settings_save($sensor_name, $values) {
 /**
  * Gets sensor settings.
  *
- * @param $sensor_name
+ * @param string $sensor_name
  *   Sensor name.
  *
  * @return array
@@ -453,7 +458,10 @@ function monitoring_sensor_result_save(SensorResultInterface $result) {
  * Gets last sensor result.
  *
  * @param string $sensor_name
- * @return \Drupal\monitoring\Entity\SensorResultEntity
+ *   The name of the sensor.
+ *
+ * @return \Drupal\monitoring\Entity\SensorResultEntity|null
+ *   A SensorResultEntity representing the last sensor result.
  */
 function monitoring_sensor_result_last($sensor_name) {
   $query = new EntityFieldQuery();
@@ -467,10 +475,12 @@ function monitoring_sensor_result_last($sensor_name) {
     $row = array_shift($result['monitoring_sensor_result']);
     return entity_load_single('monitoring_sensor_result', $row->record_id);
   }
+
+  return NULL;
 }
 
 /**
- * Implements hook_views_pre_render()
+ * Implements hook_views_pre_render().
  *
  * Alters the views page title.
  */
@@ -494,7 +504,11 @@ function monitoring_theme() {
       ),
     ),
     'monitoring_overview_summary' => array(
-      'variables' => array('status_overview' => array(), 'total_execution_time' => NULL, 'non_cached_execution_time' => NULL),
+      'variables' => array(
+        'status_overview'           => array(),
+        'total_execution_time'      => NULL,
+        'non_cached_execution_time' => NULL,
+      ),
     ),
   );
 }
@@ -530,7 +544,7 @@ function theme_monitoring_config_box($variables) {
 /**
  * Helper function to get config code with dynamic vars.
  *
- * @param string module
+ * @param string $module
  *   Module name.
  * @param string $type
  *   Config type.
