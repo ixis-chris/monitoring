@@ -17,7 +17,6 @@ abstract class SensorConfigurable extends Sensor implements SensorConfigurableIn
 
   /**
    * {@inheritdoc}
-   *
    */
   public function settingsForm($form, &$form_state) {
 
