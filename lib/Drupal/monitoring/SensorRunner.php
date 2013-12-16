@@ -180,6 +180,15 @@ class SensorRunner implements \IteratorAggregate {
 
     // Capture verbose output if requested and if we are able to do so.
     if ($this->verbose && $sensor_info->isExtendedInfo()) {
+      // @FIXME: $sensor is assigned based on the result of
+      // $this->getSensorObject() above, which is declared as returning type
+      // SensorInterface, but SensorInterface does not contain the method
+      // resultVerbose() as used here. getSensorObject() could actually return
+      // one of a number of classes, and some of those classes might have
+      // resultVerbose() defined and some might not.
+      //
+      // Should probably force SensorInterface to have resultVerbose if it's
+      // to be used like this.
       $this->verboseOutput[$sensor_info->getName()] = $sensor->resultVerbose($result);
     }
 
