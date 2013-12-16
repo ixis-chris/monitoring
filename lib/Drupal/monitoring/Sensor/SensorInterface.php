@@ -34,7 +34,7 @@ interface SensorInterface {
   /**
    * Determines if sensor is enabled.
    *
-   * @return boolean
+   * @return bool
    *   Enabled flag.
    */
   public function isEnabled();
