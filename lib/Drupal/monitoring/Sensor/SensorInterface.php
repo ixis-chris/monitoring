@@ -19,7 +19,7 @@ interface SensorInterface {
    * @return string
    *   Sensor name.
    */
-  function getSensorName();
+  public function getSensorName();
 
   /**
    * Runs sensor.
@@ -29,7 +29,7 @@ interface SensorInterface {
    * @param SensorResultInterface $sensor_result
    *   Sensor result object.
    */
-  function runSensor(SensorResultInterface $sensor_result);
+  public function runSensor(SensorResultInterface $sensor_result);
 
   /**
    * Determines if sensor is enabled.
@@ -37,6 +37,6 @@ interface SensorInterface {
    * @return boolean
    *   Enabled flag.
    */
-  function isEnabled();
+  public function isEnabled();
 
 }
