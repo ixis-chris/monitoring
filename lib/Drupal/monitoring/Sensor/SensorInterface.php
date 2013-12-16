@@ -26,7 +26,7 @@ interface SensorInterface {
    *
    * Within this method the sensor status and value needs to be set.
    *
-   * @param SensorResultInterface $sensor_result
+   * @param \Drupal\monitoring\Result\SensorResultInterface $sensor_result
    *   Sensor result object.
    */
   public function runSensor(SensorResultInterface $sensor_result);
